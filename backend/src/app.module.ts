@@ -3,6 +3,8 @@ import { AppController } from './app.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
+import { ListingModule } from './listing/listing.module';
+import { DistrictModule } from './district/district.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { UserModule } from './user/user.module';
       inject: [ConfigService],
     }),
     UserModule,
+    ListingModule,
+    DistrictModule,
   ],
   controllers: [AppController],
   providers: [],

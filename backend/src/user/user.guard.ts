@@ -19,7 +19,7 @@ export class UserGuard implements CanActivate {
     try {
       const decoded = await this.jwtService.verifyAsync(jwt);
       console.log(decoded);
-      if (+role === 0) {
+      if (+role === 1 || decoded) {
         request.user = decoded;
         console.log(request.user);
         return true;
