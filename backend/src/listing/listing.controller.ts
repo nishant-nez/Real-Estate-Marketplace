@@ -8,11 +8,19 @@ import {
   Delete,
   Res,
   Req,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ListingService } from './listing.service';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
 import { Request } from 'express';
+import { AdminGuard } from 'src/guards/admin.guard';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { Express } from 'express';
 
 @Controller('listing')
 export class ListingController {
@@ -25,11 +33,12 @@ export class ListingController {
   }
 
   @Get()
-  findAll(@Req() request: Request) {
-    return this.listingService.findAllForUser(request);
+  findAll() {
+    return this.listingService.findAll();
   }
 
   @Get('all')
+  // @UseGuards(AdminGuard)
   findAllForUser() {
     return this.listingService.findAll();
   }
@@ -53,9 +62,20 @@ export class ListingController {
     return this.listingService.remove(+id);
   }
 
-  // @Get('tttt')
-  // testGet() {
-  //   console.log('here');
-  //   return this.listingService.getTest();
-  // }
+  @Post('upload')
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      storage: diskStorage({
+        destination: './uploads/listings',
+        filename: (req, file, cb) => {
+          const name = `${new Date().getTime()}-${file.originalname}`;
+          cb(null, name);
+        },
+      }),
+    }),
+  )
+  uploadImage(@UploadedFiles() files: any, @Body() body: any) {
+    console.log(body);
+    return this.listingService.fileUpload(files, body);
+  }
 }

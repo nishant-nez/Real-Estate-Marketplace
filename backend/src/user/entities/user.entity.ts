@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Listing } from 'src/listing/entities/listing.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class User {
@@ -14,9 +15,21 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ nullable: true })
+  phone: number;
+
   @Column({
     enum: [0, 1],
     default: 0,
   })
   role: number;
+
+  @OneToMany(() => Listing, (listing) => listing.user)
+  listings: Listing[];
+
+  @Column({ default: '' })
+  avatar: string;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  date: Date;
 }

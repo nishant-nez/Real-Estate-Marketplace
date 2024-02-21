@@ -141,6 +141,17 @@ export class UserService {
     }
   }
 
+  async avatarUpload(file: any, body: any) {
+    const { id } = body;
+    const filename = file.filename;
+
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    user.avatar = filename;
+    await this.userRepository.save(user);
+
+    return { filename };
+  }
+
   guardTest() {
     return 'inside guardTest()';
   }

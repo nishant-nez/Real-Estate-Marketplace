@@ -9,12 +9,16 @@ import {
   Res,
   Req,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Response, Request } from 'express';
 import { UserGuard } from './user.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @Controller('user')
 export class UserController {
@@ -68,5 +72,21 @@ export class UserController {
   @Delete('delete/:id')
   remove(@Param('id') id: string, @Req() request: Request) {
     return this.userService.remove(+id, request);
+  }
+
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads/avatars',
+        filename: (req, file, cb) => {
+          const name = `${new Date().getTime()}-${file.originalname}`;
+          cb(null, name);
+        },
+      }),
+    }),
+  )
+  uploadAvatar(@UploadedFile() file: any, @Body() body: any) {
+    return this.userService.avatarUpload(file, body);
   }
 }

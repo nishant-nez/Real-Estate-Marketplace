@@ -2,6 +2,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -12,7 +13,8 @@ export class Listing {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => User, { cascade: true })
+  // @OneToOne(() => User, { cascade: true })
+  @ManyToOne(() => User, (user) => user.listings, { cascade: true })
   @JoinColumn()
   user: User;
 
@@ -59,6 +61,12 @@ export class Listing {
 
   @Column({ type: 'text', array: true, default: [] })
   images: string[];
+
+  @Column({
+    type: 'timestamp with time zone',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  date: Date;
 
   //   constructor(item: Partial<Listing>) {
   //     Object.assign(this, item);

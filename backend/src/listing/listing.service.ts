@@ -38,11 +38,19 @@ export class ListingService {
     Object.assign(item, createListingDto);
     // Object.assign(item, user);
 
-    return this.listingRepository.save(item);
+    const result = await this.listingRepository.save(item);
+    delete result.user.password;
+
+    return result;
   }
 
-  findAll() {
-    return this.listingRepository.find({ relations: ['user'] });
+  async findAll() {
+    const result = await this.listingRepository.find({ relations: ['user'] });
+    result.map((data) => {
+      delete data.user.password;
+      delete data.user.role;
+    });
+    return result;
   }
 
   async findAllForUser(request: Request): Promise<Listing[]> {
@@ -62,7 +70,13 @@ export class ListingService {
   }
 
   async findOne(id: number) {
-    return this.listingRepository.findOneBy({ id });
+    const listing = await this.listingRepository.findOne({
+      where: { id: id },
+      relations: ['user'],
+    });
+    delete listing.user.password;
+    delete listing.user.role;
+    return listing;
   }
 
   async update(
@@ -102,6 +116,22 @@ export class ListingService {
 
   remove(id: number) {
     return this.listingRepository.delete(id);
+  }
+
+  async fileUpload(files: any, body: any) {
+    const { id } = body;
+    const filenames = files.map((file) => file.filename);
+
+    const listing = await this.listingRepository.findOne({ where: { id: id } });
+    console.log('listing');
+    console.log(listing);
+    listing.images = [...listing.images, ...filenames];
+    await this.listingRepository.save(listing);
+
+    console.log('id :' + id);
+    // console.log(filename + ' for id: ' + body.id);
+    return { filenames };
+    // return 'success';
   }
 
   //   getTest() {
