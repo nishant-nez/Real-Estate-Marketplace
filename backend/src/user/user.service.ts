@@ -76,7 +76,7 @@ export class UserService {
   async logout(response: Response): Promise<any> {
     response.clearCookie('jwt');
     response.clearCookie('role');
-    return 'logged out succesfully!';
+    return { message: 'logged out successfully!' };
   }
 
   findAll() {
