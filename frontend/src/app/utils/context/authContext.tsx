@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     const response = await axios.post(`${BACKEND}/user/logout/`, {}, { withCredentials: true });
-
+    setIsLoggedIn(false);
     if (response.statusText === "OK") setIsLoggedIn(false);
     // destroyCookie(null, "jwt");
     // destroyCookie(null, "role");

@@ -14,7 +14,7 @@ export default function Login() {
     console.log("login function called");
     try {
       const response = await axios.post(`${BACKEND}/user/login/`, {
-        email: "admin2@gmail.com",
+        email: "admin1@gmail.com",
         password: "admin",
       });
       console.log(response);
@@ -26,6 +26,7 @@ export default function Login() {
   const { user, isLoggedIn, isLoading, login, logout } = useAuth();
 
   const handleLogin = () => {
+    // login("admin2@gmail.com", "admin");
     login("admin2@gmail.com", "admin");
     redirect("/");
   };

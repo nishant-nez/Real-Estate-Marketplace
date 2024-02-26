@@ -8,6 +8,7 @@ import { DistrictModule } from './district/district.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { SearchModule } from './search/search.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { SearchModule } from './search/search.module';
     ListingModule,
     DistrictModule,
     SearchModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [],

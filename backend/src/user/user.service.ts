@@ -21,6 +21,11 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
+    const existing = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
+    });
+    if (existing)
+      throw new BadRequestException({ message: 'Email already in use!' });
     const data: User = new User();
     data.email = createUserDto.email;
     data.name = createUserDto.name;
@@ -38,7 +43,8 @@ export class UserService {
       where: { email: createUserDto.email },
     });
 
-    if (!user) throw new BadRequestException('Invalid Credentials!');
+    if (!user)
+      throw new BadRequestException({ message: 'Invalid Credentials!' });
 
     if (!(await bcrypt.compare(createUserDto.password, user.password))) {
       throw new BadRequestException('Invalid Creadentials!');
@@ -76,6 +82,11 @@ export class UserService {
   async logout(response: Response): Promise<any> {
     response.clearCookie('jwt');
     response.clearCookie('role');
+    try {
+      response.clearCookie('user_id');
+    } catch (error) {
+      /* Do nothing */
+    }
     return { message: 'logged out successfully!' };
   }
 

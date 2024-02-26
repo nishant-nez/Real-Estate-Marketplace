@@ -1,5 +1,14 @@
+import { ConnectedUserEntity } from 'src/chat/entities/connected-user.entity';
+import { RoomEntity } from 'src/chat/entities/room.entity';
 import { Listing } from 'src/listing/entities/listing.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class User {
@@ -32,4 +41,15 @@ export class User {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   date: Date;
+
+  @ManyToMany(() => RoomEntity, (room) => room.users)
+  rooms: RoomEntity[];
+
+  @OneToMany(() => ConnectedUserEntity, (connection) => connection.user)
+  connections: ConnectedUserEntity;
+
+  @BeforeInsert()
+  emailToLowerCase() {
+    this.email = this.email.toLowerCase();
+  }
 }
