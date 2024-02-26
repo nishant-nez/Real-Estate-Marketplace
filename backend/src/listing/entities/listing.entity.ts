@@ -1,10 +1,12 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 
@@ -62,13 +64,9 @@ export class Listing {
   @Column({ type: 'text', array: true, default: [] })
   images: string[];
 
-  @Column({
-    type: 'timestamp with time zone',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  date: Date;
+  @CreateDateColumn()
+  created_at: Date;
 
-  //   constructor(item: Partial<Listing>) {
-  //     Object.assign(this, item);
-  //   }
+  @UpdateDateColumn()
+  updated_at: Date;
 }

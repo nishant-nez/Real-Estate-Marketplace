@@ -7,15 +7,31 @@ import { RoomService } from './service/room-service/room.service';
 import { RoomEntity } from './entities/room.entity';
 import { ConnectedUserService } from './service/connected-user/connected-user.service';
 import { ConnectedUserEntity } from './entities/connected-user.entity';
+import { MessageEntity } from './gateway/chat/message.entity';
+import { JoinedRoomEntity } from './gateway/chat/joined-room.entity';
+import { JoinedRoomService } from './service/joined-room/joined-room.service';
+import { MessageService } from './service/message/message.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, RoomEntity, ConnectedUserEntity]),
+    TypeOrmModule.forFeature([
+      User,
+      RoomEntity,
+      ConnectedUserEntity,
+      MessageEntity,
+      JoinedRoomEntity,
+    ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1d' },
     }),
   ],
-  providers: [ChatGateway, RoomService, ConnectedUserService],
+  providers: [
+    ChatGateway,
+    RoomService,
+    ConnectedUserService,
+    JoinedRoomService,
+    MessageService,
+  ],
 })
 export class ChatModule {}

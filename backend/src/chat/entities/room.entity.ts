@@ -5,9 +5,12 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { JoinedRoomEntity } from '../gateway/chat/joined-room.entity';
+import { MessageEntity } from '../gateway/chat/message.entity';
 
 @Entity({ name: 'room' })
 export class RoomEntity {
@@ -23,6 +26,12 @@ export class RoomEntity {
   @ManyToMany(() => User)
   @JoinTable()
   users: User[];
+
+  @OneToMany(() => JoinedRoomEntity, (joinedRom) => joinedRom.room)
+  joinedUsers: JoinedRoomEntity[];
+
+  @OneToMany(() => MessageEntity, (message) => message.room)
+  messages: MessageEntity[];
 
   @CreateDateColumn()
   created_at: Date;

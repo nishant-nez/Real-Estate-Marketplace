@@ -1,4 +1,8 @@
-import { OnModuleInit, UnauthorizedException } from '@nestjs/common';
+import {
+  OnModuleDestroy,
+  OnModuleInit,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,8 +15,12 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ConnectedUserI } from 'src/chat/interface/connected-user.interface';
+import { JoinedRoomI } from 'src/chat/interface/joined-room.interface';
+import { MessageI } from 'src/chat/interface/message.interface';
 import { RoomI } from 'src/chat/interface/room.interface';
 import { ConnectedUserService } from 'src/chat/service/connected-user/connected-user.service';
+import { JoinedRoomService } from 'src/chat/service/joined-room/joined-room.service';
+import { MessageService } from 'src/chat/service/message/message.service';
 import { RoomService } from 'src/chat/service/room-service/room.service';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -26,16 +34,27 @@ const corsOptions: CorsOptions = {
   cors: corsOptions,
 })
 export class ChatGateway
-  implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
+  implements
+    OnGatewayConnection,
+    OnGatewayDisconnect,
+    OnModuleInit,
+    OnModuleDestroy
 {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private jwtService: JwtService,
     private readonly roomService: RoomService,
     private readonly connectedUserService: ConnectedUserService,
+    private readonly joinedRoomService: JoinedRoomService,
+    private readonly messageService: MessageService,
   ) {}
 
   async onModuleInit() {
+    await this.connectedUserService.deleteAll();
+    await this.joinedRoomService.deleteAll();
+  }
+
+  async onModuleDestroy() {
     await this.connectedUserService.deleteAll();
   }
 
@@ -69,6 +88,39 @@ export class ChatGateway
         await this.server.to(connection.socketId).emit('rooms', rooms);
       }
     }
+  }
+
+  // MESSAGE START
+  @SubscribeMessage('joinRoom')
+  async onJoinRoom(socket: Socket, room: RoomI) {
+    const messages = await this.messageService.findMessagesForRoom(room);
+
+    // save connection to room
+    await this.joinedRoomService.create({
+      socketId: socket.id,
+      user: socket.data.user,
+      room,
+    });
+    // send last messagees from ROom to User
+    await this.server.to(socket.id).emit('messagess', messages);
+  }
+
+  @SubscribeMessage('leaveRoom')
+  async onLeaveRoom(socket: Socket) {
+    // remove connection from joinedRooms
+    await this.joinedRoomService.deleteBySocketId(socket.id);
+  }
+
+  @SubscribeMessage('addMessage')
+  async onAddMessage(socket: Socket, message: MessageI) {
+    const createdMessage: MessageI = await this.messageService.create({
+      ...message,
+      user: socket.data.user,
+    });
+    const room: RoomI = await this.roomService.getRoom(createdMessage.room.id);
+    const joinedUsers: JoinedRoomI[] =
+      await this.joinedRoomService.findByRoom(room);
+    // TODO: send new message to all joined users of the room (currently online)
   }
 
   async handleConnection(socket: Socket) {

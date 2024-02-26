@@ -6,4 +6,8 @@ export class CreateUserDto {
   password: string;
 
   role: number;
+
+  created_at?: Date;
+
+  updated_at?: Date;
 }

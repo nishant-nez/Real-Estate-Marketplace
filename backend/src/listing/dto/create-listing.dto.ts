@@ -14,4 +14,6 @@ export class CreateListingDto {
   kitchen: number;
   recommended_price: number;
   car_parking: number;
+  created_at?: Date;
+  updated_at?: Date;
 }
