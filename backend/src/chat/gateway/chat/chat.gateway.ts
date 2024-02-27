@@ -93,7 +93,10 @@ export class ChatGateway
   // MESSAGE START
   @SubscribeMessage('joinRoom')
   async onJoinRoom(socket: Socket, room: RoomI) {
+    console.log('join room called');
+    console.log('data of onJoinRoom: ', room);
     const messages = await this.messageService.findMessagesForRoom(room);
+    console.log('messages from db: ', messages);
 
     // save connection to room
     await this.joinedRoomService.create({
@@ -102,13 +105,20 @@ export class ChatGateway
       room,
     });
     // send last messagees from ROom to User
-    await this.server.to(socket.id).emit('messagess', messages);
+    await this.server.to(socket.id).emit('messages', messages);
+
+    console.log('all completed');
   }
 
   @SubscribeMessage('leaveRoom')
   async onLeaveRoom(socket: Socket) {
+    console.log('leave room called');
     // remove connection from joinedRooms
-    await this.joinedRoomService.deleteBySocketId(socket.id);
+    try {
+      await this.joinedRoomService.deleteBySocketId(socket.id);
+    } catch (error) {
+      console.log('error leacing room: ', error);
+    }
   }
 
   @SubscribeMessage('addMessage')
@@ -121,6 +131,9 @@ export class ChatGateway
     const joinedUsers: JoinedRoomI[] =
       await this.joinedRoomService.findByRoom(room);
     // TODO: send new message to all joined users of the room (currently online)
+    for (const user of joinedUsers) {
+      await this.server.to(user.socketId).emit('messageAdded', createdMessage);
+    }
   }
 
   async handleConnection(socket: Socket) {
@@ -129,10 +142,10 @@ export class ChatGateway
       const token = socket.handshake.headers.cookie;
       const match = token.match(/jwt=([^;]+)/);
       const decodedToken = match ? match[1] : null;
-      console.log('token: ', token);
-      console.log('jwt: ', decodedToken);
+      // console.log('token: ', token);
+      // console.log('jwt: ', decodedToken);
       const data = await this.jwtService.verifyAsync(decodedToken);
-      console.log('jwt data', data);
+      // console.log('jwt data', data);
       if (!data) throw new UnauthorizedException();
 
       const user: User = await this.userRepository.findOne({
@@ -143,8 +156,8 @@ export class ChatGateway
         console.log('disconnected by if(!user)');
         return this.disconnect(socket);
       } else {
-        console.log('On Connect');
-        console.log('user: ', user);
+        // console.log('On Connect');
+        // console.log('user: ', user);
         socket.data.user = user;
         const rooms = await this.roomService.getRoomsForUser(user.id);
 
@@ -158,9 +171,9 @@ export class ChatGateway
       }
     } catch (error) {
       // disconnect
-      console.log('disconnected by catch (error)');
+      // console.log('disconnected by catch (error)');
       this.disconnect(socket);
-      console.log('Error: ', error);
+      console.log('Error after catching: ', error);
     }
   }
 

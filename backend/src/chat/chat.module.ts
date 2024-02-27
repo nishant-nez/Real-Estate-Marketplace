@@ -7,8 +7,8 @@ import { RoomService } from './service/room-service/room.service';
 import { RoomEntity } from './entities/room.entity';
 import { ConnectedUserService } from './service/connected-user/connected-user.service';
 import { ConnectedUserEntity } from './entities/connected-user.entity';
-import { MessageEntity } from './gateway/chat/message.entity';
-import { JoinedRoomEntity } from './gateway/chat/joined-room.entity';
+import { MessageEntity } from './entities/message.entity';
+import { JoinedRoomEntity } from './entities/joined-room.entity';
 import { JoinedRoomService } from './service/joined-room/joined-room.service';
 import { MessageService } from './service/message/message.service';
 

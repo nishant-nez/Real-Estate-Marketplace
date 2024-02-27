@@ -1,7 +1,7 @@
 import { ConnectedUserEntity } from 'src/chat/entities/connected-user.entity';
 import { RoomEntity } from 'src/chat/entities/room.entity';
-import { JoinedRoomEntity } from 'src/chat/gateway/chat/joined-room.entity';
-import { MessageEntity } from 'src/chat/gateway/chat/message.entity';
+import { JoinedRoomEntity } from 'src/chat/entities/joined-room.entity';
+import { MessageEntity } from 'src/chat/entities/message.entity';
 import { Listing } from 'src/listing/entities/listing.entity';
 import {
   BeforeInsert,

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { JoinedRoomEntity } from 'src/chat/gateway/chat/joined-room.entity';
+import { JoinedRoomEntity } from 'src/chat/entities/joined-room.entity';
 import { JoinedRoomI } from 'src/chat/interface/joined-room.interface';
 import { RoomI } from 'src/chat/interface/room.interface';
 import { User } from 'src/user/entities/user.entity';

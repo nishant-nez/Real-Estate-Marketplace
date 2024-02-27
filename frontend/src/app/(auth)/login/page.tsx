@@ -27,7 +27,7 @@ export default function Login() {
 
   const handleLogin = () => {
     // login("admin2@gmail.com", "admin");
-    login("admin2@gmail.com", "admin");
+    login("admin@gmail.com", "admin");
     redirect("/");
   };
   return (

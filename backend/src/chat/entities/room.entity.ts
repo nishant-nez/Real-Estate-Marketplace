@@ -9,8 +9,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { JoinedRoomEntity } from '../gateway/chat/joined-room.entity';
-import { MessageEntity } from '../gateway/chat/message.entity';
+import { JoinedRoomEntity } from './joined-room.entity';
+import { MessageEntity } from './message.entity';
 
 @Entity({ name: 'room' })
 export class RoomEntity {
