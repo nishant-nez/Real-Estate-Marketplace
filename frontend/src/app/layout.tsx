@@ -1,3 +1,4 @@
+import Navbar from "./components/navbar";
 import { AuthProvider } from "./utils/context/authContext";
 
 export const metadata = {
@@ -9,7 +10,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <AuthProvider>
       <html lang="en">
-        <body style={{ margin: 0 }}>{children}</body>
+        <body style={{ margin: 0, padding: 0 }}>
+          <Navbar />
+          {children}
+        </body>
       </html>
     </AuthProvider>
   );
