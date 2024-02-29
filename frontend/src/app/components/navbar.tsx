@@ -36,6 +36,10 @@ function ElevationScroll(props: Props) {
 
   return React.cloneElement(children, {
     elevation: trigger ? 4 : 0,
+    style: {
+      backgroundColor: trigger ? "rgba(40, 46, 56, 1)" : "transparent", // Change the background color based on scroll position
+      transition: "background-color 0.3s ease-in-out", // Add transition effect
+    },
   });
 }
 
@@ -109,7 +113,8 @@ export default function Navbar() {
             ) : (
               <Button
                 variant="outlined"
-                href="/login"
+                // href="/login"
+                onClick={() => router.push("/login")}
                 sx={{
                   borderRadius: 4,
                   color: "white",

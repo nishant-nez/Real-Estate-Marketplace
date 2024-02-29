@@ -1,40 +1,80 @@
 "use client";
 
-import { BACKEND } from "@/app/utils/constants";
-import axios from "axios";
 import { useAuth } from "@/app/utils/context/authContext";
 // import { useRouter } from "next/router";
-import { redirect } from "next/navigation";
-import Link from "next/link";
+import { redirect, useRouter } from "next/navigation";
+import { Container, Stack, Typography, Button } from "@mui/material";
+import { useState } from "react";
+import { Toast, ToastBox } from "@/app/components/toast";
+import AuthBox from "@/app/components/authBox";
+import LoginForm from "@/app/components/loginform";
 
 export default function Login() {
-  //   const router = useRouter();
-
-  const submit = async () => {
-    console.log("login function called");
-    try {
-      const response = await axios.post(`${BACKEND}/user/login/`, {
-        email: "admin1@gmail.com",
-        password: "admin",
-      });
-      console.log(response);
-    } catch (error) {
-      console.log("login failed: ", error);
-    }
-  };
-
   const { user, isLoggedIn, isLoading, login, logout } = useAuth();
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [emailValidate, setEmailValidate] = useState<string>("");
+  const [passwordValidate, setPasswordValidate] = useState<string>("");
 
-  const handleLogin = () => {
-    // login("admin2@gmail.com", "admin");
-    login("admin@gmail.com", "admin");
-    redirect("/");
+  const router = useRouter();
+
+  function isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    return emailRegex.test(email);
+  }
+
+  const handleSubmit = async () => {
+    setEmailValidate("");
+    setPasswordValidate("");
+
+    if (email === "") setEmailValidate("Email is required");
+    if (password === "") setPasswordValidate("Password is required");
+    if (email !== "" && !isValidEmail(email)) setEmailValidate("Enter a valid Email Address");
+
+    if (emailValidate === "" && passwordValidate === "" && isValidEmail(email) && password.length > 0) {
+      console.log("all things validated");
+      login(email, password);
+    }
+
+    // console.log(response);
   };
+
   return (
-    <div>
-      login page
-      <button onClick={handleLogin}>Login</button>
-      <Link href="/">Home</Link>
-    </div>
+    <>
+      <AuthBox title="Login" />
+
+      <Container maxWidth="lg" sx={{ paddingX: 10, marginY: 10 }}>
+        <Stack direction="row" alignItems="start" justifyContent="space-between">
+          <Container>
+            <Typography variant="h4" mb={2}>
+              Login
+            </Typography>
+            <Typography variant="subtitle1">
+              Welcome back! Log in to your account to access all the features. <br />
+              Need an account?
+            </Typography>
+            <Button
+              variant="text"
+              sx={{ color: "#fb6749", textTransform: "capitalize", paddingX: 0 }}
+              onClick={() => router.push("/register")}
+            >
+              Sign Up Now!
+            </Button>
+          </Container>
+          <LoginForm
+            emailValidate={emailValidate}
+            email={email}
+            setEmail={setEmail}
+            passwordValidate={passwordValidate}
+            password={password}
+            setPassword={setPassword}
+            handleSubmit={handleSubmit}
+            isLoading={isLoading}
+            router={router}
+          />
+        </Stack>
+      </Container>
+    </>
   );
 }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useAuth } from "../utils/context/authContext";
 import Navbar from "../components/navbar";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Container, Stack, Typography } from "@mui/material";
 import Image from "next/image";
 
 export default function HomePage() {
@@ -27,20 +27,10 @@ export default function HomePage() {
               filter: "blur(3px) brightness(0.5)",
               backgroundImage: "url('/modern_building.jpg')",
               overflow: "hidden",
-              // filter: "brightness(0.5)",
-              // backgroundColor: "rgba(0, 0, 0, 1)",
               backdropFilter: "none",
               transform: "scale(1.1)",
             }}
-          >
-            {/* <Image
-            src="/modern_building.jpg"
-            alt="modern house"
-            layout="fill"
-            objectFit="cover"
-            objectPosition="center"
-          /> */}
-          </Box>
+          ></Box>
         </Box>
         <Box
           sx={{
@@ -60,6 +50,20 @@ export default function HomePage() {
           </Typography>
         </Box>
       </Box>
+
+      <Container maxWidth="lg" sx={{ paddingX: 10, marginY: 10 }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Stack gap={1}>
+            <Typography variant="h3" fontWeight="bold">
+              Latest Property Listings
+            </Typography>
+            <Typography variant="subtitle1">
+              Our latest listings at a glance. Explore property from all sizes and types
+            </Typography>
+          </Stack>
+          <Button variant="outlined">Browse All Listings</Button>
+        </Stack>
+      </Container>
     </>
   );
 }

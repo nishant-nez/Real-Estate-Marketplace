@@ -1,9 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { parseCookies, destroyCookie } from "nookies";
 import { BACKEND } from "../constants";
+import { Toast } from "@/app/components/toast";
 axios.defaults.withCredentials = true;
 
 interface User {
@@ -57,12 +58,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.statusText === "Created") {
         const user = await axios.get(`${BACKEND}/user/`);
         if (user.statusText === "OK") {
+          Toast("success", "Login successful");
           setUser(response.data);
           setIsLoggedIn(true);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log("error logging in: ", error);
+      Toast("error", error.response.data.message);
     } finally {
       setIsLoading(false);
     }
