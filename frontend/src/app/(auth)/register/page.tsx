@@ -8,36 +8,96 @@ import { useState } from "react";
 import { Toast, ToastBox } from "@/app/components/toast";
 import AuthBox from "@/app/components/authBox";
 import LoginForm from "@/app/components/loginform";
+import RegisterForm from "@/app/components/signupform";
+import axios from "axios";
+import { BACKEND } from "@/app/utils/constants";
 
 export default function Register() {
   const { user, isLoggedIn, isLoading, login, logout } = useAuth();
+  const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [verifyPassword, setVerifyPassword] = useState<string>("");
+  const [phone, setPhone] = useState<number>(0);
+
+  const [nameValidate, setNameValidate] = useState<string>("");
   const [emailValidate, setEmailValidate] = useState<string>("");
   const [passwordValidate, setPasswordValidate] = useState<string>("");
+  const [verifyPwdValidate, setVerifyPwdValidate] = useState<string>("");
+  const [phoneValidate, setPhoneValidate] = useState<string>("");
+
+  const [registerLoading, setRegisterLoading] = useState<boolean>(false);
 
   const router = useRouter();
 
   function isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
     return emailRegex.test(email);
   }
 
+  function isPhoneNumber(phone: number | undefined): boolean {
+    if (phone) {
+      const numberString = phone.toString();
+      const phoneNumberPattern = /^9\d{9}$/;
+      return phoneNumberPattern.test(numberString);
+    } else return false;
+  }
+
   const handleSubmit = async () => {
+    setNameValidate("");
     setEmailValidate("");
     setPasswordValidate("");
+    setVerifyPwdValidate("");
+    setPhoneValidate("");
 
-    if (email === "") setEmailValidate("Email is required");
-    if (password === "") setPasswordValidate("Password is required");
-    if (email !== "" && !isValidEmail(email)) setEmailValidate("Enter a valid Email Address");
-
-    if (emailValidate === "" && passwordValidate === "" && isValidEmail(email) && password.length > 0) {
-      console.log("all things validated");
-      login(email, password);
+    // Validate fields
+    let isValid = true;
+    if (!name) {
+      setNameValidate("Name is required");
+      isValid = false;
+    }
+    if (!email) {
+      setEmailValidate("Email is required");
+      isValid = false;
+    }
+    if (!password) {
+      setPasswordValidate("Password is required");
+      isValid = false;
+    }
+    if (!phone) {
+      setPhoneValidate("Phone is required");
+      isValid = false;
+    }
+    if (!isValidEmail(email)) {
+      setEmailValidate("Enter valid email!");
+      isValid = false;
+    }
+    if (!verifyPassword || verifyPassword !== password) {
+      setVerifyPwdValidate("Passwords do not match!");
+      isValid = false;
+    }
+    if (phone && !isPhoneNumber(phone)) {
+      setPhoneValidate("Enter a valid phone number!");
+      isValid = false;
     }
 
-    // console.log(response);
+    if (isValid) {
+      setRegisterLoading(true);
+      try {
+        const response = await axios.post(
+          `${BACKEND}/user/register/`,
+          { name, email, password, phone },
+          { withCredentials: true }
+        );
+        if (response.status === 201) {
+          Toast("success", "Registered Successfully!");
+        }
+      } catch (error: any) {
+        Toast("error", error.response.data.message);
+      } finally {
+        setRegisterLoading(false);
+      }
+    }
   };
 
   return (
@@ -57,91 +117,33 @@ export default function Register() {
             </Typography>
             <Button
               variant="text"
-              sx={{ color: "#fb6749", textTransform: "capitalize", paddingX: 0 }}
+              sx={{ color: "#fb6749", textTransform: "capitalize", paddingX: 0, justifyContent: "start" }}
               onClick={() => router.push("/login")}
             >
               Login
             </Button>
           </Container>
-          <Container maxWidth="sm" sx={{ marginLeft: 0, marginRight: 0 }}>
-            <Box
-              sx={{
-                boxShadow: 3,
-                borderRadius: 2,
-                px: 4,
-                py: 6,
-                // marginTop: 8,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <Box component="form" noValidate sx={{ mt: 1 }}>
-                <TextField
-                  error={emailValidate === "" ? false : true}
-                  helperText={emailValidate}
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  // autoFocus
-                />
-                <TextField
-                  error={passwordValidate === "" ? false : true}
-                  helperText={passwordValidate}
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <Stack direction="row" gap={0} justifyContent="space-between" alignItems="center" mt={2}>
-                  <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
-                  <Button variant="text" sx={{ color: "#fb6749", textTransform: "capitalize" }}>
-                    Forgot Password?
-                  </Button>
-                </Stack>
-                <Button
-                  onClick={handleSubmit}
-                  fullWidth
-                  variant="contained"
-                  disabled={isLoading ? true : false}
-                  sx={{
-                    mt: 4,
-                    mb: 2,
-                    backgroundColor: "#fb6749",
-                    padding: 1.5,
-                    borderRadius: 7,
-                    "&:hover": {
-                      backgroundColor: "#282e38",
-                    },
-                  }}
-                >
-                  Sign In
-                </Button>
-                <Stack direction="row" alignItems="center" justifyContent="flex-end">
-                  <Typography variant="body2">No Account?</Typography>
-                  <Button
-                    variant="text"
-                    sx={{ color: "#fb6749", textTransform: "capitalize" }}
-                    onClick={() => router.push("/register")}
-                  >
-                    Sign Up
-                  </Button>
-                </Stack>
-              </Box>
-            </Box>
-          </Container>
+
+          <RegisterForm
+            nameValidate={nameValidate}
+            setName={setName}
+            emailValidate={emailValidate}
+            name={name}
+            email={email}
+            setEmail={setEmail}
+            phone={phone}
+            setPhone={setPhone}
+            phoneValidate={phoneValidate}
+            password={password}
+            setPassword={setPassword}
+            passwordValidate={passwordValidate}
+            verifyPassword={verifyPassword}
+            verifyPwdValidate={verifyPwdValidate}
+            setVerifyPassword={setVerifyPassword}
+            handleSubmit={handleSubmit}
+            isLoading={registerLoading}
+            router={router}
+          />
         </Stack>
       </Container>
     </>

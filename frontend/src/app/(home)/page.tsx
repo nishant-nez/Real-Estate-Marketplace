@@ -5,12 +5,41 @@ import { useAuth } from "../utils/context/authContext";
 import Navbar from "../components/navbar";
 import { Box, Button, Container, Stack, Typography } from "@mui/material";
 import Image from "next/image";
+import BounceLoader from "react-spinners/BounceLoader";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { BACKEND } from "../utils/constants";
+import { Toast } from "../components/toast";
 
 export default function HomePage() {
   const { user, isLoggedIn, isLoading, login, logout } = useAuth();
+  const router = useRouter();
+
+  const [latestListings, setLatestListings] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${BACKEND}/search?limit=3`);
+        if (response.statusText === "OK") {
+          console.log(response.data);
+          await setLatestListings(response.data);
+        } else {
+          Toast("error", "Failed to load lastest listings!");
+        }
+      } catch (err: any) {
+        console.error(`Error: ${err}`);
+        Toast("error", err.response.data.message || "Server error");
+      }
+      console.log("latestListings : ", latestListings);
+    };
+
+    fetchData();
+  }, []);
 
   if (isLoading) {
-    return <div>loading...</div>;
+    return <BounceLoader color="#36d7b7" size={150} />;
   }
 
   return (
@@ -61,7 +90,27 @@ export default function HomePage() {
               Our latest listings at a glance. Explore property from all sizes and types
             </Typography>
           </Stack>
-          <Button variant="outlined">Browse All Listings</Button>
+          <Button
+            variant="outlined"
+            onClick={() => router.push("/login")}
+            sx={{
+              borderRadius: 2,
+              paddingX: 3,
+              paddingY: 1,
+              fontWeight: "bold",
+              textTransform: "capitalize",
+              fontSize: [18],
+              color: "#fb6749",
+              borderColor: "#fb6749",
+              "&:hover": {
+                borderColor: "#fb6749",
+                backgroundColor: "#fb6749",
+                color: "white",
+              },
+            }}
+          >
+            Browse All Listings
+          </Button>
         </Stack>
       </Container>
     </>

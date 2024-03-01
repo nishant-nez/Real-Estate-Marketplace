@@ -15,6 +15,8 @@ export class SearchController {
     @Query('minPrice') minPrice?: number,
     @Query('maxPrice') maxPrice?: number,
     @Query('sortByPrice') sortByPrice?: 'asc' | 'desc',
+    @Query('sortByDate') sortByDate?: 'asc' | 'desc',
+    @Query('limit') limit?: number,
   ): Promise<Listing[]> {
     return this.searchService.searchListings({
       query,
@@ -24,6 +26,8 @@ export class SearchController {
       minPrice,
       maxPrice,
       sortByPrice,
+      sortByDate,
+      limit,
     });
   }
 }

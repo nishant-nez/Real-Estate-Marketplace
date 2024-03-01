@@ -18,6 +18,8 @@ export class SearchService {
     minPrice,
     maxPrice,
     sortByPrice,
+    sortByDate,
+    limit,
   }: {
     query: string;
     type?: string;
@@ -26,6 +28,8 @@ export class SearchService {
     minPrice?: number;
     maxPrice?: number;
     sortByPrice?: 'asc' | 'desc';
+    sortByDate?: 'asc' | 'desc';
+    limit?: number;
   }): Promise<Listing[]> {
     let queryBuilder = this.listingRepository.createQueryBuilder('listing');
     console.log(query);
@@ -68,6 +72,14 @@ export class SearchService {
       queryBuilder = queryBuilder.orderBy('listing.price', 'ASC');
     } else if (sortByPrice === 'desc') {
       queryBuilder = queryBuilder.orderBy('listing.price', 'DESC');
+    }
+    if (sortByDate === 'asc') {
+      queryBuilder = queryBuilder.orderBy('listing.created_at', 'ASC');
+    } else if (sortByDate === 'desc') {
+      queryBuilder = queryBuilder.orderBy('listing.created_at', 'DESC');
+    }
+    if (limit) {
+      queryBuilder = queryBuilder.limit(limit);
     }
 
     return queryBuilder.getMany();
