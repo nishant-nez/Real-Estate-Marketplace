@@ -3,7 +3,19 @@
 import Link from "next/link";
 import { useAuth } from "../utils/context/authContext";
 import Navbar from "../components/navbar";
-import { Box, Button, Container, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardActions,
+  CardContent,
+  CardMedia,
+  Chip,
+  Container,
+  Stack,
+  Typography,
+} from "@mui/material";
 import Image from "next/image";
 import BounceLoader from "react-spinners/BounceLoader";
 import { useRouter } from "next/navigation";
@@ -11,12 +23,14 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { BACKEND } from "../utils/constants";
 import { Toast } from "../components/toast";
+import { ListingType } from "../interface/listingType";
+import LatestListingCard from "../components/latestListingCard";
 
 export default function HomePage() {
   const { user, isLoggedIn, isLoading, login, logout } = useAuth();
   const router = useRouter();
 
-  const [latestListings, setLatestListings] = useState([]);
+  const [latestListings, setLatestListings] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,19 +38,23 @@ export default function HomePage() {
         const response = await axios.get(`${BACKEND}/search?limit=3`);
         if (response.statusText === "OK") {
           console.log(response.data);
-          await setLatestListings(response.data);
+          setLatestListings(response.data);
         } else {
           Toast("error", "Failed to load lastest listings!");
         }
       } catch (err: any) {
         console.error(`Error: ${err}`);
-        Toast("error", err.response.data.message || "Server error");
+        Toast("error", err || "Server error");
       }
       console.log("latestListings : ", latestListings);
     };
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    console.log("latest listings: ", latestListings);
+  }, [latestListings]);
 
   if (isLoading) {
     return <BounceLoader color="#36d7b7" size={150} />;
@@ -79,9 +97,8 @@ export default function HomePage() {
           </Typography>
         </Box>
       </Box>
-
       <Container maxWidth="lg" sx={{ paddingX: 10, marginY: 10 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems="center">
           <Stack gap={1}>
             <Typography variant="h3" fontWeight="bold">
               Latest Property Listings
@@ -112,6 +129,8 @@ export default function HomePage() {
             Browse All Listings
           </Button>
         </Stack>
+
+        <LatestListingCard latestListings={latestListings} />
       </Container>
     </>
   );

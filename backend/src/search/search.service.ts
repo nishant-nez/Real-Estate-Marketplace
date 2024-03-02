@@ -31,7 +31,9 @@ export class SearchService {
     sortByDate?: 'asc' | 'desc';
     limit?: number;
   }): Promise<Listing[]> {
-    let queryBuilder = this.listingRepository.createQueryBuilder('listing');
+    let queryBuilder = this.listingRepository
+      .createQueryBuilder('listing')
+      .leftJoinAndSelect('listing.user', 'user');
     console.log(query);
 
     if (query) {

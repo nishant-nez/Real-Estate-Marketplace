@@ -5,20 +5,11 @@ import axios, { AxiosError } from "axios";
 import { parseCookies, destroyCookie } from "nookies";
 import { BACKEND } from "../constants";
 import { Toast } from "@/app/components/toast";
+import { UserType } from "@/app/interface/userType";
 axios.defaults.withCredentials = true;
 
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  phone: number | null;
-  role: number;
-  avatar: string;
-  date: Date;
-}
-
 interface AuthContextType {
-  user: User | null;
+  user: UserType | null;
   isLoggedIn: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => void;
@@ -40,7 +31,7 @@ interface AuthProviderProps {
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserType | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
