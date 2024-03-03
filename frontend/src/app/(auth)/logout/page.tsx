@@ -1,6 +1,6 @@
 "use client";
 
-import AuthBox from "@/app/components/authBox";
+import AuthBox from "@/app/components/headerBox";
 import { useAuth } from "@/app/utils/context/authContext";
 import { Button, Container, Stack, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";

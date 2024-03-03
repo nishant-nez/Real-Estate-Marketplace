@@ -24,7 +24,7 @@ import axios from "axios";
 import { BACKEND } from "../utils/constants";
 import { Toast } from "../components/toast";
 import { ListingType } from "../interface/listingType";
-import LatestListingCard from "../components/latestListingCard";
+import ListingCard from "../components/listingCard";
 
 export default function HomePage() {
   const { user, isLoggedIn, isLoading, login, logout } = useAuth();
@@ -109,7 +109,7 @@ export default function HomePage() {
           </Stack>
           <Button
             variant="outlined"
-            onClick={() => router.push("/login")}
+            onClick={() => router.push("/listings")}
             sx={{
               borderRadius: 2,
               paddingX: 3,
@@ -130,7 +130,14 @@ export default function HomePage() {
           </Button>
         </Stack>
 
-        <LatestListingCard latestListings={latestListings} />
+        {/* <LatestListingCard latestListings={latestListings} /> */}
+
+        <Stack direction={{ xs: "column", sm: "row" }} alignItems="center" justifyContent="space-between" marginY={5}>
+          {latestListings &&
+            latestListings.map((item: any) => {
+              return <ListingCard key={item.id} listing={item} />;
+            })}
+        </Stack>
       </Container>
     </>
   );

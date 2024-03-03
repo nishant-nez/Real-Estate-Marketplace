@@ -1,9 +1,9 @@
 import { Box, Divider, Typography } from "@mui/material";
 
-export default function AuthBox({ title }: { title: string }) {
+export default function HeaderBox({ title }: { title: string }) {
   return (
     <>
-      <Box sx={{ width: "100%", height: "40vh", overflow: "hidden" }}>
+      <Box height={title === "Listings" ? "32vh" : "40vh"} sx={{ width: "100%", overflow: "hidden" }}>
         <Box sx={{ top: 0, left: 0, width: "100%", height: "100%", zIndex: -1 }}>
           <Box
             component="div"

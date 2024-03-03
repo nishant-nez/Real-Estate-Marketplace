@@ -53,7 +53,9 @@ export class SearchService {
       queryBuilder = queryBuilder.andWhere('listing.type = :type', { type });
     }
     if (city) {
-      queryBuilder = queryBuilder.andWhere('listing.city = :city', { city });
+      queryBuilder = queryBuilder.andWhere('LOWER(listing.city) ILIKE :city', {
+        city: `%${city.toLowerCase()}%`,
+      });
     }
     if (district) {
       queryBuilder = queryBuilder.andWhere('listing.district = :district', {

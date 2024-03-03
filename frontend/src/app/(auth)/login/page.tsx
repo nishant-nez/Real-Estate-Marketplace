@@ -6,7 +6,7 @@ import { redirect, useRouter } from "next/navigation";
 import { Container, Stack, Typography, Button } from "@mui/material";
 import { useState } from "react";
 import { Toast, ToastBox } from "@/app/components/toast";
-import AuthBox from "@/app/components/authBox";
+import HeaderBox from "@/app/components/headerBox";
 import LoginForm from "@/app/components/loginform";
 
 export default function Login() {
@@ -42,7 +42,7 @@ export default function Login() {
 
   return (
     <>
-      <AuthBox title="Login" />
+      <HeaderBox title="Login" />
 
       <Container maxWidth="lg" sx={{ paddingX: 10, marginY: 10 }}>
         <Stack direction="row" alignItems="start" justifyContent="space-between">

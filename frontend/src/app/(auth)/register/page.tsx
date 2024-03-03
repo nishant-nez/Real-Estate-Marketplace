@@ -6,7 +6,7 @@ import { redirect, useRouter } from "next/navigation";
 import { Container, Stack, Typography, Button, Box, TextField, FormControlLabel, Checkbox } from "@mui/material";
 import { useState } from "react";
 import { Toast, ToastBox } from "@/app/components/toast";
-import AuthBox from "@/app/components/authBox";
+import HeaderBox from "@/app/components/headerBox";
 import LoginForm from "@/app/components/loginform";
 import RegisterForm from "@/app/components/signupform";
 import axios from "axios";
@@ -102,7 +102,7 @@ export default function Register() {
 
   return (
     <>
-      <AuthBox title="Register" />
+      <HeaderBox title="Register" />
 
       <Container maxWidth="lg" sx={{ paddingX: 10, marginY: 10 }}>
         <Stack direction="row" alignItems="start" justifyContent="space-between">

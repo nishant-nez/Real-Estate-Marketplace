@@ -53,10 +53,6 @@ const navItems = [
     href: "/listings",
   },
   {
-    name: "Search",
-    href: "/search",
-  },
-  {
     name: "Conversations",
     href: "/chat",
   },
