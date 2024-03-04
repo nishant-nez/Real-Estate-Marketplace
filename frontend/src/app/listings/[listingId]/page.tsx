@@ -9,8 +9,18 @@ import axios from "axios";
 import { Metadata } from "next";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-// import Carousel from "react-spring-3d-carousel";
+import Carousel from "react-spring-3d-carousel";
 import { v4 as uuidv4 } from "uuid";
+import { config } from "react-spring";
+import { Container, Grid, Stack, Typography } from "@mui/material";
+import HotelIcon from "@mui/icons-material/Hotel";
+import ShowerIcon from "@mui/icons-material/Shower";
+import KitchenIcon from "@mui/icons-material/Kitchen";
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+import CropFreeIcon from "@mui/icons-material/CropFree";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import CorporateFare from "@mui/icons-material/CorporateFare";
+import FeatureCard from "@/app/components/featureCard";
 
 type Props = {
   params: {
@@ -51,7 +61,17 @@ export default function ListingDetails({ params }: { params: { listingId: string
     if (listing) {
       const imgList = listing.images.map((img, index) => ({
         key: uuidv4(),
-        content: <img key={index} src={`${BACKEND}/uploads/listings/${img}`} alt={`Slide ${index}`} />,
+        content: (
+          <img
+            key={index}
+            // width={0}
+            // height={0}
+            // sizes="100vw"
+            // style={{ width: "100%", height: "auto" }}
+            src={`${BACKEND}/uploads/listings/${img}`}
+            alt={`Slide ${index}`}
+          />
+        ),
       }));
       setSlides(imgList);
     }
@@ -64,9 +84,43 @@ export default function ListingDetails({ params }: { params: { listingId: string
   return (
     <>
       <HeaderBox title="Listing Details" />
-      <h1>Details about listing {params.listingId}</h1>
+      <Container maxWidth="lg" sx={{ marginTop: 10 }}>
+        <Typography variant="h3">{listing?.title}</Typography>
+        <Typography variant="body1">
+          {listing?.city}, {listing?.district}
+        </Typography>
 
-      {/* {slides && <Carousel slides={slides} showNavigation={true} />} */}
+        <Container sx={{ width: "100%", height: "500px", margin: "0 auto" }}>
+          {slides && <Carousel slides={slides} showNavigation goToSlide={0} offsetRadius={2} />}
+        </Container>
+
+        <Stack marginY={14} direction="row" alignItems="flex-start" justifyContent="space-between">
+          <Stack width="50%">
+            <Typography variant="h4">About this Property</Typography>
+            <Typography variant="subtitle1">{listing?.description}</Typography>
+          </Stack>
+          <Container sx={{ width: "50%", backgroundColor: "#282e38", padding: 4, borderRadius: 2 }}>
+            <Typography variant="h4" fontSize={22} color="white" fontWeight="bold" paddingTop={1} paddingBottom={2}>
+              Features
+            </Typography>
+
+            <Grid container rowSpacing={2.5} columnSpacing={2.5} columns={2} justifyContent="space-between">
+              <FeatureCard title="Stories" icon={CorporateFare} value={listing?.stories} />
+              <FeatureCard title="Area" icon={CropFreeIcon} value={listing?.area} />
+              <FeatureCard title="Bathroom" icon={ShowerIcon} value={listing?.bathroom} />
+              <FeatureCard title="Bedroom" icon={HotelIcon} value={listing?.bedroom} />
+              <FeatureCard title="Kitchen" icon={KitchenIcon} value={listing?.kitchen} />
+              <FeatureCard title="Parking" icon={DirectionsCarIcon} value={listing?.car_parking} />
+            </Grid>
+          </Container>
+        </Stack>
+      </Container>
+
+      <Container
+        sx={{ width: "100vw", height: "50vh", backgroundColor: "#282e38", margin: 0, padding: 0, minWidth: "100%" }}
+      >
+        <Container>user details</Container>
+      </Container>
     </>
   );
 }

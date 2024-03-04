@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { socket } from "./socket";
 import { Button, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import { useAuth } from "../utils/context/authContext";
+import HeaderBox from "../components/headerBox";
 // console.log(socket);
 
 export default function Chat() {
@@ -86,6 +87,7 @@ export default function Chat() {
 
   return (
     <>
+      <HeaderBox title="Conversations" />
       chatpage
       <button onClick={handleClick}>status</button>
       <Button
