@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const user = await axios.get(`${BACKEND}/user/`);
         if (user.statusText === "OK") {
           Toast("success", "Login successful");
-          setUser(response.data);
+          setUser(user.data);
           setIsLoggedIn(true);
         }
       }
@@ -90,6 +90,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    console.log("user: ", user);
+  }, [user]);
 
   useEffect(() => {
     console.log("loggedin", isLoggedIn);

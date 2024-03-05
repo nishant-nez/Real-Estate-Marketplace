@@ -1,17 +1,22 @@
 "use client";
+
 import { BACKEND } from "../utils/constants";
 import { useEffect, useState } from "react";
 import { socket } from "./socket";
-import { Button, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import { Avatar, Box, Button, Container, Divider, Paper, Stack, TextField, Typography } from "@mui/material";
 import { useAuth } from "../utils/context/authContext";
 import HeaderBox from "../components/headerBox";
-// console.log(socket);
+import { UserType } from "../interface/userType";
+import SendIcon from "@mui/icons-material/Send";
+import React from "react";
 
 export default function Chat() {
   const { user, isLoggedIn, isLoading, login, logout } = useAuth();
   const [title, setTitle] = useState<string[]>([]);
   const [myRooms, setMyRooms] = useState<any[]>();
   const [selectedRoom, setSelectedRoom] = useState<any>();
+  const [roomMessages, setRoomMessages] = useState<any[]>();
+  const [newMessage, setNewMessage] = useState("");
 
   //   useEffect(() => {
   socket.connect();
@@ -53,6 +58,7 @@ export default function Chat() {
   });
 
   socket.on("messages", (value) => {
+    setRoomMessages(value);
     console.log("Received Message: ", value);
   });
 
@@ -70,99 +76,158 @@ export default function Chat() {
     }
   }, [myRooms]);
 
-  useEffect(() => {
-    console.log("selected room: ", selectedRoom);
-    // joinRoom(selectedRoom);
-  }, [selectedRoom]);
-
-  // return () => {
-  //   socket.disconnect();
-  // };
-  //   }, []);
-
-  const handleClick = () => {
-    console.log(socket);
-    console.log(user);
-  };
-
   return (
     <>
       <HeaderBox title="Conversations" />
-      chatpage
-      <button onClick={handleClick}>status</button>
-      <Button
-        variant="contained"
-        onClick={() => {
-          const msg = {
-            text: "check for the message at time 817",
-            user: user,
-            room: selectedRoom,
-          };
-          addMessage(msg);
-        }}
-      >
-        Add Message
-      </Button>
-      <div>{title}</div>
-      <button onClick={createRoom}>Create Room</button>
-      <div>rooms: </div>
-      <div>{JSON.stringify(myRooms)}</div>
-      <Stack direction="row" spacing={3}>
-        <TableContainer component={Paper} sx={{ maxWidth: 1000 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Rooms</TableCell>
-                {/* <TableCell>Conversations</TableCell> */}
-              </TableRow>
-            </TableHead>
-            {myRooms ? (
-              <TableBody>
-                {/* <TableRow>
-                <TableCell>1</TableCell>
-                <TableCell rowSpan={myRooms.length}>
-                  {selectedRoom ? console.log("selected") : console.log("not selectyed")}
-                </TableCell>
-              </TableRow> */}
-                {/* {myRooms.map((room) => )} */}
-                {myRooms.map((room) => (
-                  <TableRow key={room.id}>
-                    <TableCell
-                      onClick={() => {
-                        leaveRoom(selectedRoom);
-                        setSelectedRoom(room);
-                        joinRoom(room);
-                      }}
-                      sx={{ cursor: "pointer" }}
-                    >
-                      ({room.id}) {room.name}
-                    </TableCell>
-                  </TableRow>
+      <Container sx={{ marginY: 10, width: "80%" }}>
+        {myRooms && (
+          <Stack direction="row" justifyContent="space-between">
+            <Stack
+              divider={<Divider orientation="horizontal" flexItem sx={{}} />}
+              gap={2.5}
+              // marginY={4}
+              minWidth="30%"
+              // maxWidth="30%"
+              sx={{ border: "1px solid black", borderRadius: "10px 0 0 10px", padding: 4 }}
+            >
+              {myRooms.length > 0 &&
+                user &&
+                myRooms.map((room) => (
+                  // Use a fragment or a container to wrap the elements returned by map
+                  <React.Fragment key={room.id}>
+                    {room.users.map((Seluser: UserType) => {
+                      // Check if the user id is not equal to the current user id
+                      if (Seluser.id !== user.id) {
+                        return (
+                          <React.Fragment key={Seluser.id}>
+                            <Stack
+                              direction="row"
+                              alignItems="center"
+                              spacing={3}
+                              sx={{ cursor: "pointer" }}
+                              onClick={() => {
+                                leaveRoom(selectedRoom);
+                                setSelectedRoom(room);
+                                joinRoom(room);
+                              }}
+                            >
+                              <Avatar alt="user avatar" src={`${BACKEND}/uploads/avatars/${Seluser.avatar}`} />
+                              <Typography>{user.name}</Typography>
+                            </Stack>
+                          </React.Fragment>
+                        );
+                      }
+                      // Return null if the condition is not met
+                      return null;
+                    })}
+                  </React.Fragment>
                 ))}
-              </TableBody>
-            ) : (
-              <p>no ROoms foound!</p>
-            )}
-          </Table>
-        </TableContainer>
-        {/* <div></div> */}
-        {!selectedRoom ? (
-          <div>no room selected</div>
-        ) : (
-          <div>
-            id: {selectedRoom.id} <br />
-            name: {selectedRoom.name} <br />
-            created_at: {selectedRoom.created_at} <br />
-            users: <br />
-            {selectedRoom.users.map((user) => (
-              <div key={user.id}>
-                Name: {user.name}, email: {user.email}
-                <br />
-              </div>
-            ))}
-          </div>
+            </Stack>
+
+            <Container
+              sx={{
+                width: "70%",
+                minHeight: "75vh",
+                border: "1px solid black",
+                borderRadius: "0 10px 10px 0",
+                margin: 0,
+                // overflowY: "scroll",
+                position: "relative",
+                paddingBottom: "70px",
+              }}
+              style={{ padding: 0 }}
+            >
+              {!selectedRoom ? (
+                <Typography>No Rooms Selected!</Typography>
+              ) : (
+                <Stack paddingBottom="75px" sx={{ overflowY: "scroll" }}>
+                  <Box sx={{ padding: 4, backgroundColor: "#282e38", color: "white", marginBottom: 2 }}>
+                    <Typography>
+                      ({selectedRoom.id}) {selectedRoom.name}
+                    </Typography>
+                    <Typography>
+                      {selectedRoom.users.map((user: UserType) => (
+                        <Typography key={user.id}>
+                          [Name: {user.name}, email: {user.email}]
+                        </Typography>
+                      ))}
+                    </Typography>
+                  </Box>
+                  {roomMessages &&
+                    roomMessages.map((msg) => {
+                      return (
+                        <Stack
+                          key={msg.id}
+                          marginLeft={msg.user.id === user?.id ? "auto" : 2}
+                          sx={{
+                            // border: "3px solid black",
+                            display: "inline-block",
+                            maxWidth: "fit-content",
+                            borderRadius: 2,
+                            padding: 2,
+                            marginRight: 2,
+                            marginBottom: 2,
+                            backgroundColor: msg.user.id === user?.id ? "#fb6749" : "#7fcfdf",
+                            color: msg.user.id === user?.id ? "white" : "black",
+                            // marginLeft: "auto",
+                            // marginLeft: {msg.user.id === user.id ? "auto" : "none"},
+                          }}
+                          // alignItems="flex-end"
+                        >
+                          <Typography>{msg.user.name}</Typography>
+                          <Typography>{msg.text}</Typography>
+                          {/* <Divider /> */}
+                        </Stack>
+                        // <Stack key={msg.id}>
+                        // </Stack>
+                      );
+                    })}
+                  <Stack
+                    direction="row"
+                    gap={2}
+                    justifyContent="center"
+                    sx={{
+                      bottom: 0,
+                      position: "absolute",
+                      width: "94%",
+                      marginBottom: 4,
+                      marginX: 4,
+                    }}
+                  >
+                    <TextField
+                      id="standard-basic"
+                      label="Send Message"
+                      variant="standard"
+                      fullWidth
+                      onChange={(e) => setNewMessage(e.target.value)}
+                    />
+                    <Button
+                      variant="contained"
+                      endIcon={<SendIcon />}
+                      onClick={() => {
+                        const msg = {
+                          text: newMessage,
+                          user: user,
+                          room: selectedRoom,
+                        };
+                        setNewMessage("");
+                        addMessage(msg);
+                      }}
+                    >
+                      Send
+                    </Button>
+                  </Stack>
+                </Stack>
+              )}
+            </Container>
+          </Stack>
         )}
-      </Stack>
+        {!myRooms && (
+          <Stack justifyContent="center" alignItems="center" height="40vh">
+            <Typography>No Recent Conversations!</Typography>
+          </Stack>
+        )}
+      </Container>
     </>
   );
 }
