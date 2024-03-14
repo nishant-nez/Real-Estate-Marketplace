@@ -11,9 +11,15 @@ import Tooltip from "@mui/material/Tooltip";
 import PersonAdd from "@mui/icons-material/PersonAdd";
 import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
+import AddIcon from "@mui/icons-material/Add";
+import CorporateFareIcon from "@mui/icons-material/CorporateFare";
+import { useRouter } from "next/navigation";
+import ListingForm from "./listingForm";
+import { useState } from "react";
 
 export default function ProfileMenu({ picLink }: { picLink: string | undefined }) {
   console.log("piclink from navbar: ", picLink);
+  const router = useRouter();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -22,6 +28,16 @@ export default function ProfileMenu({ picLink }: { picLink: string | undefined }
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  // dialog box
+  const [openDialog, setOpenDialog] = useState(false);
+  const handleClickOpen = () => {
+    setOpenDialog(true);
+  };
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
   return (
     <React.Fragment>
       <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
@@ -35,6 +51,7 @@ export default function ProfileMenu({ picLink }: { picLink: string | undefined }
         </Tooltip>
       </Box>
       <Menu
+        style={{ padding: 4 }}
         anchorEl={anchorEl}
         id="account-menu"
         open={open}
@@ -69,18 +86,36 @@ export default function ProfileMenu({ picLink }: { picLink: string | undefined }
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleClose}>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            router.push("/profile");
+          }}
+        >
           <Avatar src={picLink} /> Profile
         </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <Avatar src={picLink} /> My account
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            router.push("/mylistings");
+          }}
+        >
+          <ListItemIcon>
+            <CorporateFareIcon fontSize="small" />
+          </ListItemIcon>
+          My Listings
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleClose}>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            handleClickOpen();
+          }}
+        >
           <ListItemIcon>
-            <PersonAdd fontSize="small" />
+            <AddIcon fontSize="small" />
           </ListItemIcon>
-          Add another account
+          Add Listing
         </MenuItem>
         <MenuItem onClick={handleClose}>
           <ListItemIcon>
@@ -88,13 +123,20 @@ export default function ProfileMenu({ picLink }: { picLink: string | undefined }
           </ListItemIcon>
           Settings
         </MenuItem>
-        <MenuItem onClick={handleClose}>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            router.push("/logout");
+          }}
+        >
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>
           Logout
         </MenuItem>
       </Menu>
+
+      <ListingForm openDialog={openDialog} handleCloseDialog={handleCloseDialog} />
     </React.Fragment>
   );
 }

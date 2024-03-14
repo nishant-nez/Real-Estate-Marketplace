@@ -1,7 +1,7 @@
 "use client";
 
 import { BACKEND } from "../utils/constants";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { socket } from "./socket";
 import { Avatar, Box, Button, Container, Divider, Paper, Stack, TextField, Typography } from "@mui/material";
 import { useAuth } from "../utils/context/authContext";
@@ -15,13 +15,36 @@ export default function Chat() {
   const [title, setTitle] = useState<string[]>([]);
   const [myRooms, setMyRooms] = useState<any[]>();
   const [selectedRoom, setSelectedRoom] = useState<any>();
-  const [roomMessages, setRoomMessages] = useState<any[]>();
+  const [roomMessages, setRoomMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const roomMessagesRef = useRef<any[]>([]);
+  const selectedRoomRef = useRef<any>();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   //   useEffect(() => {
   socket.connect();
   socket.on("connect", () => console.log("connected"));
   socket.on("disconnect", () => console.log("disconnected"));
+
+  useEffect(() => {
+    console.log("selected room from useEffect: ", selectedRoom);
+    selectedRoomRef.current = selectedRoom;
+  }, [selectedRoom]);
+
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  useEffect(() => {
+    roomMessagesRef.current = roomMessages;
+    scrollToBottom();
+  }, [roomMessages]);
+
+  // useEffect(()=>{
+  //   scrollToBottom();
+  // }, [roomMessages])
 
   const createRoom = () => {
     const user2 = { id: 3 };
@@ -47,7 +70,35 @@ export default function Chat() {
   };
 
   socket.on("messageAdded", (value) => {
+    console.log("Room Messages: ", roomMessagesRef.current);
+    console.log("Selected Room: ", selectedRoomRef.current);
     console.log("Added Message: ", value);
+
+    const { room, text, created_at, updated_at, user } = value;
+
+    if (room.id === selectedRoomRef.current?.id) {
+      setRoomMessages((prevMessages) => {
+        // Check if the message already exists in the array
+        const messageExists = prevMessages.some((msg) => msg.text === text);
+
+        // If the message doesn't exist, add it to the array
+        if (!messageExists) {
+          return [
+            ...prevMessages,
+            {
+              id: prevMessages.length + 1,
+              text: text,
+              created_at: created_at,
+              updated_at: updated_at,
+              user: user,
+            },
+          ];
+        }
+
+        // If the message already exists, return the previous messages array unchanged
+        return prevMessages;
+      });
+    }
   });
 
   // Listen for incoming messages
@@ -112,7 +163,7 @@ export default function Chat() {
                               }}
                             >
                               <Avatar alt="user avatar" src={`${BACKEND}/uploads/avatars/${Seluser.avatar}`} />
-                              <Typography>{user.name}</Typography>
+                              <Typography>{Seluser.name}</Typography>
                             </Stack>
                           </React.Fragment>
                         );
@@ -128,6 +179,7 @@ export default function Chat() {
               sx={{
                 width: "70%",
                 minHeight: "75vh",
+                // maxHeight: "80vh",
                 border: "1px solid black",
                 borderRadius: "0 10px 10px 0",
                 margin: 0,
@@ -138,9 +190,11 @@ export default function Chat() {
               style={{ padding: 0 }}
             >
               {!selectedRoom ? (
-                <Typography>No Rooms Selected!</Typography>
+                <Stack alignItems="center" justifyContent="center" height="100%">
+                  <Typography>No Rooms Selected!</Typography>
+                </Stack>
               ) : (
-                <Stack paddingBottom="75px" sx={{ overflowY: "scroll" }}>
+                <Stack paddingBottom="75px" sx={{ maxHeight: "80vh", overflowY: "scroll" }} ref={messagesEndRef}>
                   <Box sx={{ padding: 4, backgroundColor: "#282e38", color: "white", marginBottom: 2 }}>
                     <Typography>
                       ({selectedRoom.id}) {selectedRoom.name}
@@ -174,7 +228,7 @@ export default function Chat() {
                           }}
                           // alignItems="flex-end"
                         >
-                          <Typography>{msg.user.name}</Typography>
+                          <Typography sx={{ fontStyle: "italic" }}>{msg.user.name}</Typography>
                           <Typography>{msg.text}</Typography>
                           {/* <Divider /> */}
                         </Stack>

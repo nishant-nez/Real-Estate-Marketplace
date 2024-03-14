@@ -23,7 +23,7 @@ export default function DropDown({
           <InputLabel>{label}</InputLabel>
           <Select
             value={initialValue}
-            label="District"
+            label={label}
             size="medium"
             onChange={(event) => {
               setter(event.target.value);

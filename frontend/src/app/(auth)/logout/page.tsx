@@ -10,7 +10,7 @@ export default function Logout() {
   const router = useRouter();
   return (
     <>
-      {isLoggedIn && router.replace("/")}
+      {!isLoggedIn && router.replace("/")}
       <AuthBox title="logout" />
       <Container maxWidth="lg" sx={{ marginY: 14 }}>
         <Stack alignItems="center" justifyContent="center" textAlign="center" gap={2}>
