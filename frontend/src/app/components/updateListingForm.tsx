@@ -5,23 +5,12 @@ import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useState } from "react";
 import { FormikHelpers, useFormik } from "formik";
 import * as Yup from "yup";
-import {
-  MenuItem,
-  Select,
-  Stack,
-  FormControl,
-  InputLabel,
-  FormHelperText,
-  Box,
-  ButtonBase,
-  Typography,
-} from "@mui/material";
-import React, { Component } from "react";
+import { MenuItem, Select, Stack, FormControl, InputLabel, FormHelperText, Box, Typography } from "@mui/material";
+import React from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import { BACKEND } from "../utils/constants";
@@ -29,6 +18,7 @@ import { Toast } from "./toast";
 import { useRouter } from "next/navigation";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Image from "next/image";
+import { ListingType } from "../interface/listingType";
 
 const listingSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
@@ -49,7 +39,19 @@ const listingSchema = Yup.object().shape({
 
 const districts: string[] = ["Kathmandu", "Lalitpur", "Bhaktapur"];
 
-export default function ListingForm({ openDialog, handleCloseDialog }: { openDialog: any; handleCloseDialog: any }) {
+export default function UpdateListingForm({
+  openDialog,
+  handleCloseDialog,
+  listing,
+  trigger,
+  setTrigger,
+}: {
+  openDialog: any;
+  handleCloseDialog: any;
+  listing: ListingType;
+  trigger: Boolean;
+  setTrigger: any;
+}) {
   const router = useRouter();
 
   const [previews, setPreviews] = useState<string[]>([]);
@@ -71,8 +73,11 @@ export default function ListingForm({ openDialog, handleCloseDialog }: { openDia
     actions.setSubmitting(false);
 
     try {
-      const listingResponse = await axios.post(`${BACKEND}/listing`, values, { withCredentials: true });
-      if (listingResponse.status === 201) {
+      const listingResponse = await axios.patch(`${BACKEND}/listing/${listing.id}`, values, { withCredentials: true });
+      console.log("listingResponse", listingResponse);
+      Toast("success", "Listing updated successfully!");
+      setTrigger(!trigger);
+      if (listingResponse.status === 200) {
         const formData = new FormData();
         formData.append("id", listingResponse.data.id);
         acceptedFiles.forEach((file) => {
@@ -100,44 +105,28 @@ export default function ListingForm({ openDialog, handleCloseDialog }: { openDia
   // const formik = useFormik
   const formik = useFormik({
     initialValues: {
-      title: "",
-      description: "",
-      type: "house",
-      price: "",
-      city: "",
-      district: "",
-      area: "",
-      stories: "",
-      bedroom: "",
-      bathroom: "",
-      kitchen: "",
-      car_parking: "",
+      title: listing.title,
+      description: listing.description,
+      type: listing.type,
+      price: listing.price,
+      city: listing.city,
+      district: listing.district,
+      area: listing.area,
+      stories: listing.stories,
+      bedroom: listing.bedroom,
+      bathroom: listing.bedroom,
+      kitchen: listing.kitchen,
+      car_parking: listing.car_parking,
     },
     validationSchema: listingSchema,
     onSubmit,
   });
 
   return (
-    <Dialog
-      open={openDialog}
-      onClose={handleCloseDialog}
-      maxWidth="xl"
-      // sx={{ minWidth: "99vw" }}
-      // PaperProps={{
-      //   component: "form",
-      //   onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-      //     event.preventDefault();
-      //     const formData = new FormData(event.currentTarget);
-      //     const formJson = Object.fromEntries((formData as any).entries());
-      //     const email = formJson.email;
-      //     console.log(email);
-      //     handleCloseDialog();
-      //   },
-      // }}
-    >
+    <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="xl">
       <DialogTitle>
         <Typography variant="h5" paddingLeft={3}>
-          Add a Listing
+          Update Listing
         </Typography>
       </DialogTitle>
       <DialogContent>
@@ -299,14 +288,6 @@ export default function ListingForm({ openDialog, handleCloseDialog }: { openDia
                 />
               </Stack>
             </Stack>
-            {/* <ButtonBase
-              component={Box}
-              sx={{ p: 2, border: "1px dashed grey", minHeight: "100%", flexGrow: 1, marginY: 3, marginX: "24px" }}
-              {...getRootProps({ className: "dropzone", style: { height: "100%" } })}
-            >
-              <input {...getInputProps()} />
-              <p>Drag n drop some files here, or click to select files</p>
-            </ButtonBase> */}
             <Box
               sx={{ p: 2, border: "1px dashed grey", minHeight: "100%", flexGrow: 1, marginY: 3, marginX: "24px" }}
               {...getRootProps({ className: "dropzone" })}
@@ -334,16 +315,6 @@ export default function ListingForm({ openDialog, handleCloseDialog }: { openDia
                 </Stack>
               </Stack>
             </Box>
-            {/* <section className="container">
-              <div {...getRootProps({ className: "dropzone" })}>
-                <input {...getInputProps()} />
-                <p>Drag n drop some files here, or click to select files</p>
-              </div>
-              <aside>
-                <h4>Files</h4>
-                <ul>{files}</ul>
-              </aside>
-            </section> */}
           </Stack>
           <Stack alignItems="center" justifyContent="center">
             <Button
@@ -362,14 +333,13 @@ export default function ListingForm({ openDialog, handleCloseDialog }: { openDia
                 },
               }}
             >
-              Submit
+              Update
             </Button>
           </Stack>
         </form>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleCloseDialog}>Cancel</Button>
-        {/* <Button type="submit">Subscribe</Button> */}
       </DialogActions>
     </Dialog>
   );

@@ -116,6 +116,7 @@ export class UserService {
       if (user.id === id || user.role === 1) {
         user.email = updateUserDto.email;
         user.name = updateUserDto.name;
+        user.phone = updateUserDto.phone;
         if (updateUserDto.password) {
           const hashedPassword = await bcrypt.hash(updateUserDto.password, 12);
           user.password = hashedPassword;

@@ -2,7 +2,7 @@ export interface UserType {
   id: number;
   name: string;
   email: string;
-  phone: number | null;
+  phone: number;
   role: number;
   avatar: string;
   created_at: Date;

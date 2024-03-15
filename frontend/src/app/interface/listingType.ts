@@ -3,6 +3,7 @@ import { UserType } from "./userType";
 export interface ListingType {
   id: number;
   title: string;
+  type: string;
   description: string;
   price: number;
   city: string;

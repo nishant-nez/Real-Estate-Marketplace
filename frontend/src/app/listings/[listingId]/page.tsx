@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import Carousel from "react-spring-3d-carousel";
 import { v4 as uuidv4 } from "uuid";
 import { config } from "react-spring";
-import { Container, Grid, Stack, Typography } from "@mui/material";
+import { Button, Container, Grid, Stack, Typography } from "@mui/material";
 import HotelIcon from "@mui/icons-material/Hotel";
 import ShowerIcon from "@mui/icons-material/Shower";
 import KitchenIcon from "@mui/icons-material/Kitchen";
@@ -21,6 +21,7 @@ import CropFreeIcon from "@mui/icons-material/CropFree";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CorporateFare from "@mui/icons-material/CorporateFare";
 import FeatureCard from "@/app/components/featureCard";
+import UpdateListingForm from "@/app/components/updateListingForm";
 
 type Props = {
   params: {
@@ -38,6 +39,16 @@ export default function ListingDetails({ params }: { params: { listingId: string
   const { user, isLoggedIn, isLoading, login, logout } = useAuth();
   const [listing, setListing] = useState<ListingType | null>(null);
   const [slides, setSlides] = useState<any | null>(null);
+  const [trigger, setTrigger] = useState<Boolean>(false);
+
+  // dialog box
+  const [openDialog, setOpenDialog] = useState(false);
+  const handleClickOpen = () => {
+    setOpenDialog(true);
+  };
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,7 +66,7 @@ export default function ListingDetails({ params }: { params: { listingId: string
     };
 
     fetchData();
-  }, []);
+  }, [trigger]);
 
   useEffect(() => {
     if (listing) {
@@ -85,8 +96,30 @@ export default function ListingDetails({ params }: { params: { listingId: string
     <>
       <HeaderBox title="Listing Details" />
       <Container maxWidth="lg" sx={{ marginTop: 10 }}>
-        <Typography variant="h3">{listing?.title}</Typography>
-        <Typography variant="body1">
+        <Stack direction="row" gap={3} alignItems="center" justifyContent="space-between">
+          <Typography variant="h3">{listing?.title}</Typography>
+          {user && listing && listing.user.id === user.id && (
+            <Button
+              onClick={handleClickOpen}
+              fullWidth
+              variant="contained"
+              disabled={isLoading ? true : false}
+              sx={{
+                fontWeight: "bold",
+                backgroundColor: "#fb6749",
+                padding: 1.5,
+                borderRadius: 7,
+                maxWidth: 230,
+                "&:hover": {
+                  backgroundColor: "#282e38",
+                },
+              }}
+            >
+              Edit
+            </Button>
+          )}
+        </Stack>
+        <Typography variant="body1" marginTop={1} marginBottom={3}>
           {listing?.city}, {listing?.district}
         </Typography>
 
@@ -121,6 +154,16 @@ export default function ListingDetails({ params }: { params: { listingId: string
       >
         <Container>user details</Container>
       </Container>
+
+      {listing && (
+        <UpdateListingForm
+          openDialog={openDialog}
+          handleCloseDialog={handleCloseDialog}
+          listing={listing}
+          trigger={trigger}
+          setTrigger={setTrigger}
+        />
+      )}
     </>
   );
 }

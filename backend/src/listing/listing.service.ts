@@ -92,7 +92,7 @@ export class ListingService {
       throw new UnauthorizedException();
     }
 
-    const user = await this.userRepository.findOne(userId);
+    const user = await this.userRepository.findOne({ where: { id: userId } });
 
     if (!user) {
       throw new UnauthorizedException('User not found');

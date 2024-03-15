@@ -4,7 +4,11 @@ export default function HeaderBox({ title }: { title: string }) {
   return (
     <>
       <Box
-        height={title === "Listings" || title === "Conversations" ? "32vh" : "40vh"}
+        height={
+          title === "Listings" || title === "Conversations" || title === "Profile" || title === "User Details"
+            ? "32vh"
+            : "40vh"
+        }
         sx={{ width: "100%", overflow: "hidden" }}
       >
         <Box sx={{ top: 0, left: 0, width: "100%", height: "100%", zIndex: -1 }}>
