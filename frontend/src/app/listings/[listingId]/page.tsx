@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import Carousel from "react-spring-3d-carousel";
 import { v4 as uuidv4 } from "uuid";
 import { config } from "react-spring";
-import { Button, Container, Grid, Stack, Typography } from "@mui/material";
+import { Button, Container, Grid, Stack, Typography, Box, FormControl, OutlinedInput, Avatar } from "@mui/material";
 import HotelIcon from "@mui/icons-material/Hotel";
 import ShowerIcon from "@mui/icons-material/Shower";
 import KitchenIcon from "@mui/icons-material/Kitchen";
@@ -22,6 +22,10 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CorporateFare from "@mui/icons-material/CorporateFare";
 import FeatureCard from "@/app/components/featureCard";
 import UpdateListingForm from "@/app/components/updateListingForm";
+import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
+import MailOutlineOutlinedIcon from "@mui/icons-material/MailOutlineOutlined";
+import LocalPhoneOutlinedIcon from "@mui/icons-material/LocalPhoneOutlined";
+import { useRouter } from "next/navigation";
 
 type Props = {
   params: {
@@ -40,6 +44,8 @@ export default function ListingDetails({ params }: { params: { listingId: string
   const [listing, setListing] = useState<ListingType | null>(null);
   const [slides, setSlides] = useState<any | null>(null);
   const [trigger, setTrigger] = useState<Boolean>(false);
+
+  const router = useRouter();
 
   // dialog box
   const [openDialog, setOpenDialog] = useState(false);
@@ -150,9 +156,99 @@ export default function ListingDetails({ params }: { params: { listingId: string
       </Container>
 
       <Container
-        sx={{ width: "100vw", height: "50vh", backgroundColor: "#282e38", margin: 0, padding: 0, minWidth: "100%" }}
+        sx={{ width: "100vw", height: "60vh", backgroundColor: "#282e38", margin: 0, padding: 0, minWidth: "100%" }}
       >
-        <Container>user details</Container>
+        <Container>
+          <Typography variant="h4" sx={{ color: "white", fontWeight: "bold", paddingTop: 5 }}>
+            Seller Details
+          </Typography>
+          <Stack direction="row" alignItems="start" gap={10} marginY={6}>
+            <Avatar
+              alt="user profile image"
+              sx={{ width: 300, height: 300 }}
+              src={listing?.user.avatar ? `${BACKEND}/uploads/avatars/${listing.user.avatar}` : "/default.jpg"}
+            />
+            <Stack justifyContent="flex-start" gap={5} marginY={3}>
+              <Stack direction="row" gap={3} alignItems="center">
+                <Box
+                  sx={{
+                    backgroundColor: "#fff0ec",
+                    borderRadius: 2,
+                    padding: 1,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <PermIdentityOutlinedIcon sx={{ color: "#fb6749", fontSize: 30 }} />
+                </Box>
+                <Typography variant="h5" sx={{ color: "white" }}>
+                  {listing?.user.name}
+                </Typography>
+              </Stack>
+              <Stack direction="row" gap={3} alignItems="center">
+                <Box
+                  sx={{
+                    backgroundColor: "#fff0ec",
+                    borderRadius: 2,
+                    padding: 1,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <MailOutlineOutlinedIcon sx={{ color: "#fb6749", fontSize: 30 }} />
+                </Box>
+                <Typography variant="h5" sx={{ color: "white" }}>
+                  {listing?.user.email}
+                </Typography>
+              </Stack>
+              <Stack direction="row" gap={3} alignItems="center">
+                <Box
+                  sx={{
+                    backgroundColor: "#fff0ec",
+                    borderRadius: 2,
+                    padding: 1,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <LocalPhoneOutlinedIcon sx={{ color: "#fb6749", fontSize: 30 }} />
+                </Box>
+                <Typography variant="h5" sx={{ color: "white" }}>
+                  +977 {listing?.user.phone}
+                </Typography>
+              </Stack>
+              {listing?.user.id !== user.id && (
+                <Stack alignItems="center" justifyContent="center">
+                  <Button
+                    onClick={() => {
+                      if (isLoggedIn) {
+                        router.push(`/chat?userId=${listing?.user.id}`);
+                      } else {
+                        router.push("/login");
+                      }
+                    }}
+                    fullWidth
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                      fontWeight: "bold",
+                      marginY: 3,
+                      backgroundColor: "#fb6749",
+                      padding: 2,
+                      borderRadius: 7,
+                      maxWidth: 230,
+                      "&:hover": {
+                        backgroundColor: "#282e38",
+                      },
+                    }}
+                  >
+                    {isLoggedIn ? "Send Message" : "Login to continue"}
+                  </Button>
+                </Stack>
+              )}
+            </Stack>
+          </Stack>
+        </Container>
       </Container>
 
       {listing && (

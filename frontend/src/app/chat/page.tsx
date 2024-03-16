@@ -9,6 +9,7 @@ import HeaderBox from "../components/headerBox";
 import { UserType } from "../interface/userType";
 import SendIcon from "@mui/icons-material/Send";
 import React from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 
 export default function Chat() {
   const { user, isLoggedIn, isLoading, login, logout } = useAuth();
@@ -20,11 +21,35 @@ export default function Chat() {
   const roomMessagesRef = useRef<any[]>([]);
   const selectedRoomRef = useRef<any>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-  //   useEffect(() => {
-  socket.connect();
-  socket.on("connect", () => console.log("connected"));
-  socket.on("disconnect", () => console.log("disconnected"));
+  useEffect(() => {
+    socket.connect();
+    socket.on("connect", () => console.log("connected"));
+    socket.on("disconnect", () => console.log("disconnected"));
+  }, []);
+
+  useEffect(() => {
+    const userId = searchParams.get("userId");
+    if (userId && user) {
+      // console.log("the userId passed is: ", userId);
+      // console.log("myrooms", myRooms);
+      const filteredRoom = myRooms?.find((room) => {
+        return room.users.some((user: UserType) => user.id === +userId);
+      });
+      console.log("filteredRoom1", filteredRoom);
+      if (filteredRoom) {
+        console.log("filteredRoom", filteredRoom);
+        setSelectedRoom(filteredRoom);
+        router.replace("/chat");
+      } else {
+        console.log("no rooms exists with id " + userId);
+        createRoom(+userId);
+        router.replace("/chat");
+      }
+    }
+  }, [user]);
 
   useEffect(() => {
     console.log("selected room from useEffect: ", selectedRoom);
@@ -46,10 +71,10 @@ export default function Chat() {
   //   scrollToBottom();
   // }, [roomMessages])
 
-  const createRoom = () => {
-    const user2 = { id: 3 };
+  const createRoom = (id: number) => {
+    const user2 = { id: id };
     const room = {
-      name: "TEST ROOM 901",
+      name: `ROOM ${Date().slice(0, 10)}`,
       users: [user2],
     };
     socket.emit("createRoom", room);

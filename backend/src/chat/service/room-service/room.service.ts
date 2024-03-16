@@ -13,6 +13,19 @@ export class RoomService {
   ) {}
 
   async createRoom(room: RoomI, creator: User): Promise<RoomI> {
+    // Check if the room with the same name and participants already exists
+    const existingRoom = await this.roomRepository
+      .createQueryBuilder('room')
+      .leftJoin('room.users', 'user')
+      .where('room.name = :name', { name: room.name })
+      .andWhere('user.id = :userId', { userId: creator.id })
+      .getOne();
+
+    // If the room already exists, return it without creating a new one
+    if (existingRoom) {
+      return existingRoom;
+    }
+
     const newRoom = await this.addCreatorToRoom(room, creator);
     return this.roomRepository.save(newRoom);
   }
