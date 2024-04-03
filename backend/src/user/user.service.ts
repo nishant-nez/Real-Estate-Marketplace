@@ -90,8 +90,25 @@ export class UserService {
     return { message: 'logged out successfully!' };
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll(request: Request) {
+    try {
+      const cookie = request.cookies['jwt'];
+      const data = await this.jwtService.verifyAsync(cookie);
+
+      if (!data) throw new UnauthorizedException();
+
+      const user = await this.userRepository.findOne({
+        where: { id: data['id'] },
+      });
+
+      if (user.role === 1) {
+        return this.userRepository.find();
+      } else {
+        throw new UnauthorizedException();
+      }
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
   }
 
   findOne(email: string) {
@@ -145,6 +162,27 @@ export class UserService {
 
       if (user.id === id || user.role === 1) {
         return this.userRepository.delete(id);
+      } else {
+        throw new UnauthorizedException();
+      }
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
+  }
+
+  async getById(id: number, request: Request) {
+    try {
+      const cookie = request.cookies['jwt'];
+      const data = await this.jwtService.verifyAsync(cookie);
+
+      if (!data) throw new UnauthorizedException();
+
+      const user = await this.userRepository.findOne({
+        where: { id: data['id'] },
+      });
+
+      if (user.id === id || user.role === 1) {
+        return this.userRepository.findOne({ where: { id } });
       } else {
         throw new UnauthorizedException();
       }

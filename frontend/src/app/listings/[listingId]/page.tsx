@@ -217,7 +217,7 @@ export default function ListingDetails({ params }: { params: { listingId: string
                   +977 {listing?.user.phone}
                 </Typography>
               </Stack>
-              {listing?.user.id !== user.id && (
+              {listing?.user.id !== user?.id && (
                 <Stack alignItems="center" justifyContent="center">
                   <Button
                     onClick={() => {

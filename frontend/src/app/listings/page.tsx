@@ -32,6 +32,8 @@ import DropDown from "../components/dropDown";
 import ListingCard from "../components/listingCard";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import { ListingType } from "../interface/listingType";
+import { useAuth } from "../utils/context/authContext";
 
 type QueryParams = {
   [key: string]: string | number | null;
@@ -50,6 +52,8 @@ const initialQueryParams = {
 };
 
 export default function Listings() {
+  const { user, isLoggedIn } = useAuth();
+
   const [queryParams, setQueryParams] = useState<QueryParams>(initialQueryParams);
   const [listings, setListings] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -85,7 +89,12 @@ export default function Listings() {
       const response = await axios.get(`${BACKEND}/search?${paramsUrl.slice(1)}`);
       if (response.statusText === "OK") {
         // console.log(response.data);
-        setListings(response.data);
+        if (isLoggedIn && user) {
+          const filteredList = response.data.filter((listing: ListingType) => listing.user.id !== user.id);
+          setListings(filteredList);
+        } else {
+          setListings(response.data);
+        }
       }
     } catch (err: any) {
       console.error(`Error: ${err}`);
@@ -134,7 +143,7 @@ export default function Listings() {
     console.log("paramsUrl: ", paramsUrl.slice(1));
 
     fetchData(paramsUrl);
-  }, [queryParams]);
+  }, [queryParams, user]);
 
   return (
     <>

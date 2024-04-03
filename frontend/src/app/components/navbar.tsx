@@ -58,6 +58,21 @@ const navItems = [
   },
 ];
 
+const adminNavItems = [
+  {
+    name: "Home",
+    href: "/",
+  },
+  {
+    name: "Listing",
+    href: "/admin/listings",
+  },
+  {
+    name: "Users",
+    href: "/admin/users",
+  },
+];
+
 export default function Navbar() {
   const { user, isLoggedIn, isLoading, login, logout } = useAuth();
   const router = useRouter();
@@ -83,26 +98,53 @@ export default function Navbar() {
               </Typography>
             </Stack>
             <Stack direction="row" justifyContent="space-evenly" alignItems="center" gap={3}>
-              {navItems.map((item) => {
-                return (
-                  <Button
-                    key={item.name}
-                    onClick={() => {
-                      router.push(item.href);
-                    }}
-                    variant="text"
-                    sx={{
-                      "&:hover": {
-                        backgroundColor: "rgba(229, 231, 235, 0.25)", // Transparent grey color
-                      },
-                    }}
-                  >
-                    <Typography variant="subtitle1" color="white" textTransform="capitalize">
-                      {item.name}
-                    </Typography>
-                  </Button>
-                );
-              })}
+              {user?.role === 1 &&
+                adminNavItems.map((item) => {
+                  return (
+                    <Button
+                      key={item.name}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        location.replace(item.href);
+                        // router.refresh();
+                        // router.push(item.href);
+                        // router.refresh();
+                        // window.history.pushState(null, item.href);
+                      }}
+                      variant="text"
+                      sx={{
+                        "&:hover": {
+                          backgroundColor: "rgba(229, 231, 235, 0.25)", // Transparent grey color
+                        },
+                      }}
+                    >
+                      <Typography variant="subtitle1" color="white" textTransform="capitalize">
+                        {item.name}
+                      </Typography>
+                    </Button>
+                  );
+                })}
+              {user?.role === 0 &&
+                navItems.map((item) => {
+                  return (
+                    <Button
+                      key={item.name}
+                      onClick={() => {
+                        router.push(item.href);
+                      }}
+                      variant="text"
+                      sx={{
+                        "&:hover": {
+                          backgroundColor: "rgba(229, 231, 235, 0.25)", // Transparent grey color
+                        },
+                      }}
+                    >
+                      <Typography variant="subtitle1" color="white" textTransform="capitalize">
+                        {item.name}
+                      </Typography>
+                    </Button>
+                  );
+                })}
             </Stack>
             {isLoggedIn ? (
               <ProfileMenu picLink={BACKEND + "/uploads/avatars/" + user?.avatar} />

@@ -76,6 +76,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const { role } = parseCookies();
         if (role) {
           const response = await axios.get(`${BACKEND}/user/`, { withCredentials: true });
+          console.log("user", response.data);
           if (response.statusText === "OK") {
             setUser(response.data);
             setIsLoggedIn(true);

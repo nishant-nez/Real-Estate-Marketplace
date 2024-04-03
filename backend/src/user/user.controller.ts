@@ -47,10 +47,10 @@ export class UserController {
     return this.userService.logout(response);
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.userService.findAll();
-  // }
+  @Get('/all')
+  findAll(@Req() request: Request) {
+    return this.userService.findAll(request);
+  }
 
   @Get('guard')
   @UseGuards(UserGuard)
@@ -72,6 +72,11 @@ export class UserController {
   @Delete('delete/:id')
   remove(@Param('id') id: string, @Req() request: Request) {
     return this.userService.remove(+id, request);
+  }
+
+  @Get(':id')
+  getById(@Param('id') id: string, @Req() request: Request) {
+    return this.userService.getById(+id, request);
   }
 
   @Post('upload')
