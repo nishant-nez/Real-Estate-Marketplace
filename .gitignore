@@ -92,3 +92,6 @@
 # typescript
 /frontend/*.tsbuildinfo
 /frontend/next-env.d.ts
+
+# fastapi
+/recommendation/env
