@@ -3,7 +3,7 @@
 import HeaderBox from "@/app/components/headerBox";
 import { Toast } from "@/app/components/toast";
 import { ListingType } from "@/app/interface/listingType";
-import { BACKEND } from "@/app/utils/constants";
+import { BACKEND, MODEL_BACKEND } from "@/app/utils/constants";
 import { useAuth } from "@/app/utils/context/authContext";
 import axios from "axios";
 import { Metadata } from "next";
@@ -44,6 +44,7 @@ export default function ListingDetails({ params }: { params: { listingId: string
   const [listing, setListing] = useState<ListingType | null>(null);
   const [slides, setSlides] = useState<any | null>(null);
   const [trigger, setTrigger] = useState<Boolean>(false);
+  const [recommendPrice, setRecommendedPrice] = useState<number>();
 
   const router = useRouter();
 
@@ -62,6 +63,26 @@ export default function ListingDetails({ params }: { params: { listingId: string
         const response = await axios.get(`${BACKEND}/listing/${params.listingId}`);
         if (response.statusText === "OK") {
           setListing(response.data);
+
+          const price = await axios.post(
+            `${MODEL_BACKEND}/recommendation`,
+            {
+              city: response.data.city,
+              district: response.data.district,
+              area: response.data.area,
+              stories: response.data.stories,
+              bedroom: response.data.bedroom,
+              bathroom: response.data.bathroom,
+              kitchen: response.data.kitchen,
+              car_parking: response.data.car_parking,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          setRecommendedPrice(price.data.Price);
         } else {
           Toast("error", "Failed to load lastest listings!");
         }
@@ -104,13 +125,27 @@ export default function ListingDetails({ params }: { params: { listingId: string
       <Container maxWidth="lg" sx={{ marginTop: 10 }}>
         <Stack direction="row" gap={3} alignItems="center" justifyContent="space-between">
           <Typography variant="h3">{listing?.title}</Typography>
-          {user && listing && listing.user.id === user.id && (
+          <Typography variant="h3">Rs. {listing?.price.toLocaleString("en-IN")}</Typography>
+        </Stack>
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Typography variant="body1" marginTop={1} marginBottom={3}>
+            {listing?.city}, {listing?.district}
+          </Typography>
+          <Typography variant="body1" marginTop={1} marginBottom={3}>
+            (Recommended Price) Rs. {recommendPrice ? recommendPrice.toLocaleString("en-IN") : ""}
+          </Typography>
+        </Stack>
+
+        {user && listing && listing.user.id === user.id && (
+          <Stack>
             <Button
               onClick={handleClickOpen}
               fullWidth
               variant="contained"
               disabled={isLoading ? true : false}
               sx={{
+                alignSelf: "end",
+                marginBottom: 3,
                 fontWeight: "bold",
                 backgroundColor: "#fb6749",
                 padding: 1.5,
@@ -123,20 +158,21 @@ export default function ListingDetails({ params }: { params: { listingId: string
             >
               Edit
             </Button>
-          )}
-        </Stack>
-        <Typography variant="body1" marginTop={1} marginBottom={3}>
-          {listing?.city}, {listing?.district}
-        </Typography>
+          </Stack>
+        )}
 
         <Container sx={{ width: "100%", height: "500px", margin: "0 auto" }}>
           {slides && <Carousel slides={slides} showNavigation goToSlide={0} offsetRadius={2} />}
         </Container>
 
         <Stack marginY={14} direction="row" alignItems="flex-start" justifyContent="space-between">
-          <Stack width="50%">
-            <Typography variant="h4">About this Property</Typography>
-            <Typography variant="subtitle1">{listing?.description}</Typography>
+          <Stack width="50%" height="100%">
+            <Stack direction="column" alignItems="flex-start" justifyContent="space-between" height="100%">
+              <div>
+                <Typography variant="h4">About this Property</Typography>
+                <Typography variant="subtitle1">{listing?.description}</Typography>
+              </div>
+            </Stack>
           </Stack>
           <Container sx={{ width: "50%", backgroundColor: "#282e38", padding: 4, borderRadius: 2 }}>
             <Typography variant="h4" fontSize={22} color="white" fontWeight="bold" paddingTop={1} paddingBottom={2}>

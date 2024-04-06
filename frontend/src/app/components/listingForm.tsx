@@ -24,7 +24,7 @@ import {
 import React, { Component } from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
-import { BACKEND } from "../utils/constants";
+import { BACKEND, MODEL_BACKEND } from "../utils/constants";
 import { Toast } from "./toast";
 import { useRouter } from "next/navigation";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -53,6 +53,9 @@ export default function ListingForm({ openDialog, handleCloseDialog }: { openDia
   const router = useRouter();
 
   const [previews, setPreviews] = useState<string[]>([]);
+
+  const [recommended_price, setRecommendedPrice] = useState("");
+
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
     accept: { "image/*": [".jpeg", ".png", ".jpg"] },
     onDrop: (acceptedFiles: File[]) => {
@@ -67,7 +70,6 @@ export default function ListingForm({ openDialog, handleCloseDialog }: { openDia
   ));
 
   const onSubmit = async (values: any, actions: FormikHelpers<any>) => {
-    console.log("accepted files: ", acceptedFiles);
     actions.setSubmitting(false);
 
     try {
@@ -91,7 +93,6 @@ export default function ListingForm({ openDialog, handleCloseDialog }: { openDia
       }
     } catch (err) {
       Toast("error", err);
-      console.log("error: ", err);
     } finally {
       actions.resetForm();
       handleCloseDialog();
@@ -297,6 +298,51 @@ export default function ListingForm({ openDialog, handleCloseDialog }: { openDia
                   error={formik.errors.car_parking && formik.touched.car_parking ? true : false}
                   helperText={formik.errors.car_parking && formik.touched.car_parking ? formik.errors.car_parking : ""}
                 />
+              </Stack>
+              <Stack direction="row" alignItems="center" justifyContent="space-between">
+                <TextField value={recommended_price || ""} label="Recommended Price" type="number" />
+                <Button
+                  fullWidth
+                  type="button"
+                  variant="contained"
+                  onClick={async () => {
+                    try {
+                      const response = await axios.post(
+                        `${MODEL_BACKEND}/recommendation`,
+                        {
+                          city: formik.values.city,
+                          district: formik.values.district,
+                          area: formik.values.area,
+                          stories: formik.values.stories,
+                          bedroom: formik.values.bedroom,
+                          bathroom: formik.values.bathroom,
+                          kitchen: formik.values.kitchen,
+                          car_parking: formik.values.car_parking,
+                        },
+                        {
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                        }
+                      );
+                      setRecommendedPrice(response.data.Price);
+                    } catch (error) {
+                      Toast("error", error);
+                    }
+                  }}
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "#282e38",
+                    padding: 1.5,
+                    borderRadius: 7,
+                    maxWidth: 230,
+                    "&:hover": {
+                      backgroundColor: "#282e38",
+                    },
+                  }}
+                >
+                  Recommend Price
+                </Button>
               </Stack>
             </Stack>
             {/* <ButtonBase
