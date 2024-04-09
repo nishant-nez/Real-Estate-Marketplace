@@ -26,6 +26,7 @@ import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
 import MailOutlineOutlinedIcon from "@mui/icons-material/MailOutlineOutlined";
 import LocalPhoneOutlinedIcon from "@mui/icons-material/LocalPhoneOutlined";
 import { useRouter } from "next/navigation";
+import ListingCard from "@/app/components/listingCard";
 
 type Props = {
   params: {
@@ -45,6 +46,7 @@ export default function ListingDetails({ params }: { params: { listingId: string
   const [slides, setSlides] = useState<any | null>(null);
   const [trigger, setTrigger] = useState<Boolean>(false);
   const [recommendPrice, setRecommendedPrice] = useState<number>();
+  const [latestListings, setLatestListings] = useState<any>(null);
 
   const router = useRouter();
 
@@ -118,6 +120,24 @@ export default function ListingDetails({ params }: { params: { listingId: string
   useEffect(() => {
     console.log(slides);
   }, [slides]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${BACKEND}/search?limit=3`);
+        if (response.statusText === "OK") {
+          setLatestListings(response.data);
+        } else {
+          Toast("error", "Failed to load lastest listings!");
+        }
+      } catch (err: any) {
+        console.error(`Error: ${err}`);
+        Toast("error", err || "Server error");
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <>
@@ -285,6 +305,23 @@ export default function ListingDetails({ params }: { params: { listingId: string
             </Stack>
           </Stack>
         </Container>
+      </Container>
+
+      <Container maxWidth="lg" sx={{ paddingX: 10, marginY: 10 }}>
+        <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems="center">
+          <Stack gap={1}>
+            <Typography variant="h3" fontWeight="bold">
+              Other listings you may like
+            </Typography>
+          </Stack>
+        </Stack>
+
+        <Stack direction={{ xs: "column", sm: "row" }} alignItems="center" justifyContent="space-between" marginY={5}>
+          {latestListings &&
+            latestListings.map((item: any) => {
+              return <ListingCard key={item.id} listing={item} />;
+            })}
+        </Stack>
       </Container>
 
       {listing && (

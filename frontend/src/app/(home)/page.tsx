@@ -52,10 +52,6 @@ export default function HomePage() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    console.log("latest listings: ", latestListings);
-  }, [latestListings]);
-
   if (isLoading) {
     return <BounceLoader color="#36d7b7" size={150} />;
   }
